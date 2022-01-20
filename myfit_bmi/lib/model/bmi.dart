@@ -1,5 +1,10 @@
 class Bmi {
-  final int weight;
+  final double weight;
+  final double size;
 
-  Bmi(this.weight);
+  int getBmi() {
+    return (weight / (size * size)).round();
+  }
+
+  Bmi(this.weight, this.size);
 }
