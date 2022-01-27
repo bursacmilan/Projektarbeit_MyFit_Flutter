@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:myfit_bmi/services/data_service.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class BmiGauge extends StatelessWidget {

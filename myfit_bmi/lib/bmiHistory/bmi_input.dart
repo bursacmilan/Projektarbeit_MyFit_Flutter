@@ -21,9 +21,9 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
 
   final _formKey = GlobalKey<FormState>();
 
-  validateText(String? value) {
+  validateText(String? value, String error) {
     if (value == null || value == '') {
-      return "Bitte grösse eingeben.";
+      return error;
     }
 
     var result = int.tryParse(value);
@@ -51,7 +51,7 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
             ),
             TextFormField(
               controller: textEditingControllerSize,
-              validator: (value) => validateText(value),
+              validator: (value) => validateText(value, "Bitte Grösse eingeben."),
               autofocus: true,
               autovalidateMode: AutovalidateMode.always,
               keyboardType: TextInputType.number,
@@ -65,7 +65,7 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
             ),
             TextFormField(
               controller: textEditingControllerWeight,
-              validator: (value) => validateText(value),
+              validator: (value) => validateText(value, "Bitte Gewicht eingeben."),
               autofocus: true,
               autovalidateMode: AutovalidateMode.always,
               keyboardType: TextInputType.number,
