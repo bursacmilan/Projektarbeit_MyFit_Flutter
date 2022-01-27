@@ -36,13 +36,10 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.all(20),
-          child: BmiInputWidget(),
-        ),
+      body: const Padding(
+        padding: EdgeInsets.all(20),
+        child: BmiInputWidget(),
       ),
     );
   }
 }
-

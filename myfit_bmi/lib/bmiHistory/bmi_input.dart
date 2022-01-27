@@ -1,9 +1,6 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:myfit_bmi/model/bmi.dart';
-import 'package:myfit_bmi/services/data_service.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'bmi_gauge.dart';
 
 class BmiInputWidget extends StatefulWidget {
   const BmiInputWidget({Key? key}) : super(key: key);
@@ -14,6 +11,7 @@ class BmiInputWidget extends StatefulWidget {
 
 class _BmiInputWidgetState extends State<BmiInputWidget> {
   String bmi = '';
+  int currentBmi = 0;
 
   final TextEditingController textEditingControllerSize =
       TextEditingController();
@@ -36,17 +34,6 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
     return null;
   }
 
-  List<charts.Series<Bmi, String>> getChartData() {
-    return [
-      charts.Series<Bmi, String>(
-        id: 'BMI Data',
-        data: DataService.instance.bmiHistory,
-        domainFn: (bmi, index) => bmi.size.toString(),
-        measureFn: (bmi, index) => bmi.size,
-      )
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -56,9 +43,9 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              child: charts.BarChart(
-                  getChartData()
+            SizedBox(
+              child: BmiGauge(
+                bmiValue: currentBmi,
               ),
               height: 200,
             ),
@@ -92,39 +79,23 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
             ),
             ElevatedButton(
                 onPressed: () {
+                  if (_formKey.currentState!.validate() == false) {
+                    return;
+                  }
+
+                  var size = double.parse(textEditingControllerSize.text) / 100;
+                  var weight = double.parse(textEditingControllerWeight.text);
+                  var bmi = Bmi(weight, size);
+
                   setState(() {
-                    if (_formKey.currentState!.validate() == false) {
-                      return;
-                    }
-
-                    var size = double.parse(textEditingControllerSize.text) / 100;
-                    var weight = double.parse(textEditingControllerWeight.text);
-                    var bmi = Bmi(weight, size);
-
                     this.bmi = bmi.getBmi().toString();
+                    currentBmi = bmi.getBmi();
                   });
                 },
                 child: Text("BMI Berechnen")),
-            ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    if (_formKey.currentState!.validate() == false) {
-                      return;
-                    }
-
-                    var size = double.parse(textEditingControllerSize.text) / 100;
-                    var weight = double.parse(textEditingControllerWeight.text);
-                    var bmi = Bmi(weight, size);
-
-                    this.bmi = bmi.getBmi().toString();
-                    DataService.instance.addBmi(bmi);
-                  });
-                },
-                child: Text("BMI Speichern")),
             const SizedBox(
               height: 20,
-            ),
-            Text('Dein BMI: ' + this.bmi + DataService.instance.bmiHistory.length.toString())
+            )
           ],
         ),
       ),
