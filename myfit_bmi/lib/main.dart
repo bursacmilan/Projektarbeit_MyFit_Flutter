@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'bmiHistory/bmi_input.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Entrypoint());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Entrypoint extends StatelessWidget {
+  const Entrypoint({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
