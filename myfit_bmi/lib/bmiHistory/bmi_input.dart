@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myfit_bmi/model/bmi.dart';
+import 'package:myfit_bmi/services/persistence_service.dart';
 import 'bmi_gauge.dart';
 
 class BmiInputWidget extends StatefulWidget {
@@ -78,7 +79,7 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
               height: 20,
             ),
             ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate() == false) {
                     return;
                   }
@@ -87,12 +88,14 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
                   var weight = double.parse(textEditingControllerWeight.text);
                   var bmi = Bmi(weight, size);
 
+                  await PersistenceService.instance.saveNew(bmi);
+
                   setState(() {
                     this.bmi = bmi.getBmi().toString();
                     currentBmi = bmi.getBmi();
                   });
                 },
-                child: Text("BMI Berechnen")),
+                child: const Text("BMI Berechnen")),
             const SizedBox(
               height: 20,
             )

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myfit_bmi/bmiHistory/bmi_history.dart';
+import 'package:myfit_bmi/services/persistence_service.dart';
 import 'bmiHistory/bmi_input.dart';
 
 void main() {
@@ -30,15 +32,55 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  Widget _getWidgetForCurrentIndex() {
+    if (_selectedIndex == 0) {
+      return const BmiInputWidget();
+    }
+
+    return const BmiHistory();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () async {
+              await PersistenceService.instance.deleteLast();
+              _onItemTapped(0);
+            },
+          )
+        ],
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(20),
-        child: BmiInputWidget(),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: _getWidgetForCurrentIndex(),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'History',
+          )
+        ],
       ),
     );
   }
