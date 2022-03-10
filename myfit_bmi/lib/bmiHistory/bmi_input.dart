@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:myfit_bmi/model/bmi.dart';
-import 'package:myfit_bmi/services/persistence_service.dart';
+
 import 'bmi_gauge.dart';
 
 class BmiInputWidget extends StatefulWidget {
@@ -12,9 +11,6 @@ class BmiInputWidget extends StatefulWidget {
 }
 
 class _BmiInputWidgetState extends State<BmiInputWidget> {
-  String bmi = '';
-  int currentBmi = 0;
-
   final TextEditingController textEditingControllerSize =
       TextEditingController();
 
@@ -36,21 +32,21 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
     return null;
   }
 
-  static const platform = MethodChannel('myfit_bmi/calculateBmi');
+  static const platform_calculateBmi = MethodChannel('myfit_bmi/calculateBmi');
 
-  String bmiResult = 'unknown bmi.';
+  int remoteBmi = 0;
 
-  Future<void> calculateBmi(String weight, String height) async {
-    String bmi;
+  Future<void> calculateBmi(double height, double weight) async {
+    double bmiResult = 0;
     try {
-      final String result = await platform.invokeMethod('calculateBmi', {'weight':weight, 'height':height});
-      bmi = 'bmi is $result';
+      bmiResult = await platform_calculateBmi
+          .invokeMethod('calculateBmi', {'height': height, 'weight': weight});
     } on PlatformException catch (e) {
-      bmi = "failed to get bmi: '${e.message}'.";
+      bmiResult = 0;
     }
 
     setState(() {
-      bmiResult = bmi;
+      remoteBmi = bmiResult.toInt();
     });
   }
 
@@ -65,13 +61,14 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
           children: [
             SizedBox(
               child: BmiGauge(
-                bmiValue: currentBmi,
+                bmiValue: remoteBmi,
               ),
               height: 200,
             ),
             TextFormField(
               controller: textEditingControllerSize,
-              validator: (value) => validateText(value, "Bitte Grösse eingeben."),
+              validator: (value) =>
+                  validateText(value, "Bitte Grösse eingeben."),
               autofocus: true,
               autovalidateMode: AutovalidateMode.always,
               keyboardType: TextInputType.number,
@@ -85,7 +82,8 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
             ),
             TextFormField(
               controller: textEditingControllerWeight,
-              validator: (value) => validateText(value, "Bitte Gewicht eingeben."),
+              validator: (value) =>
+                  validateText(value, "Bitte Gewicht eingeben."),
               autofocus: true,
               autovalidateMode: AutovalidateMode.always,
               keyboardType: TextInputType.number,
@@ -102,31 +100,12 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
                   if (_formKey.currentState!.validate() == false) {
                     return;
                   }
-
-                  var size = double.parse(textEditingControllerSize.text) / 100;
+                  var height =
+                      double.parse(textEditingControllerSize.text);
                   var weight = double.parse(textEditingControllerWeight.text);
-                  var bmi = Bmi(weight, size);
-
-                  await PersistenceService.instance.saveNew(bmi);
-
-                  setState(() {
-                    this.bmi = bmi.getBmi().toString();
-                    currentBmi = bmi.getBmi();
-                  });
+                  calculateBmi(height, weight);
                 },
-                child: const Text("BMI Berechnen")),
-            ElevatedButton(
-                onPressed: () async {
-                  calculateBmi("80", "180");
-                },
-                child: const Text("test plattform api")),
-
-            Text(
-              bmiResult,
-              style: TextStyle(
-                  color: Colors.grey[800],
-                  fontWeight: FontWeight.bold,
-                  fontSize: 40)),
+                child: const Text("Eintrag hinzufügen")),
             const SizedBox(
               height: 20,
             )
