@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:myfit_bmi/model/bmi.dart';
 import 'package:myfit_bmi/services/persistence_service.dart';
 import 'bmi_gauge.dart';
@@ -33,6 +34,24 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
     }
 
     return null;
+  }
+
+  static const platform = MethodChannel('myfit_bmi/calculateBmi');
+
+  String bmiResult = 'unknown bmi.';
+
+  Future<void> calculateBmi(String weight, String height) async {
+    String bmi;
+    try {
+      final String result = await platform.invokeMethod('calculateBmi', {'weight':weight, 'height':height});
+      bmi = 'bmi is $result';
+    } on PlatformException catch (e) {
+      bmi = "failed to get bmi: '${e.message}'.";
+    }
+
+    setState(() {
+      bmiResult = bmi;
+    });
   }
 
   @override
@@ -96,6 +115,18 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
                   });
                 },
                 child: const Text("BMI Berechnen")),
+            ElevatedButton(
+                onPressed: () async {
+                  calculateBmi("80", "180");
+                },
+                child: const Text("test plattform api")),
+
+            Text(
+              bmiResult,
+              style: TextStyle(
+                  color: Colors.grey[800],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 40)),
             const SizedBox(
               height: 20,
             )
