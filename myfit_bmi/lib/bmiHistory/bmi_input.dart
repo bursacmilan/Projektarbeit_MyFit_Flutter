@@ -32,14 +32,14 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
     return null;
   }
 
-  static const platform_calculateBmi = MethodChannel('myfit_bmi/calculateBmi');
+  static const platform_channel = MethodChannel('myfit_bmi/server_connection');
 
   int remoteBmi = 0;
 
   Future<void> calculateBmi(double height, double weight) async {
     double bmiResult = 0;
     try {
-      bmiResult = await platform_calculateBmi
+      bmiResult = await platform_channel
           .invokeMethod('calculateBmi', {'height': height, 'weight': weight});
     } on PlatformException catch (e) {
       bmiResult = 0;
@@ -100,8 +100,7 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
                   if (_formKey.currentState!.validate() == false) {
                     return;
                   }
-                  var height =
-                      double.parse(textEditingControllerSize.text);
+                  var height = double.parse(textEditingControllerSize.text);
                   var weight = double.parse(textEditingControllerWeight.text);
                   calculateBmi(height, weight);
                 },

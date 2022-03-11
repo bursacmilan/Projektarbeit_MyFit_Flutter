@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : FlutterActivity() {
 
-    private val CHANNEL = "myfit_bmi/calculateBmi"
+    private val CHANNEL = "myfit_bmi/server_connection"
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -19,27 +19,54 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             CHANNEL
         ).setMethodCallHandler { call, result ->
-            if (call.method == "calculateBmi") {
+            when (call.method) {
+                "calculateBmi" -> {
+                    val param1: Double? = call.argument("height")
+                    val param2: Double? = call.argument("weight")
 
-                val param1: Double? = call.argument("height")
-                val param2: Double? = call.argument("weight")
+                    val height = param1?.toFloat()
+                    val weight = param2?.toFloat()
 
-                val height = param1?.toFloat()
-                val weight = param2?.toFloat()
-
-                height?.let {
-                    weight?.let {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            try {
-                                result.success(BmiApi().bmiCreatePost(weight, height, "deviceUuid"))
-                            } catch (e: Exception) {
-                                result.error(e.message, e.toString(), null)
+                    height?.let {
+                        weight?.let {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                try {
+                                    result.success(
+                                        BmiApi().bmiCreatePost(
+                                            weight,
+                                            height,
+                                            "deviceUuid"
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    result.error(e.message, e.toString(), null)
+                                }
                             }
                         }
+                    } ?: result.error("internal_error", "unexpected input", null);
+                }
+                "getAllData" -> {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val data = BmiApi().bmiAllDataGet("deviceUuid")
+                            val list = mutableListOf<Double>()
+
+                            for (element in data) {
+                                val object123 = element as java.util.AbstractMap<*, *>
+                                val weight = object123["weight"] as Double
+                                val height = object123["height"] as Double
+                                list.add((weight / (height * height)))
+                            }
+
+                            result.success(list)
+                        } catch (e: Exception) {
+                            result.error(e.message, e.toString(), null)
+                        }
                     }
-                } ?: result.error("internal_error", "unexpected input", null);
-            } else {
-                result.notImplemented()
+                }
+                else -> {
+                    result.notImplemented()
+                }
             }
         }
     }
