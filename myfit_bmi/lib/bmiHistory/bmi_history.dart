@@ -11,62 +11,60 @@ class BmiHistory extends StatefulWidget {
 }
 
 class _BmiHistoryState extends State<BmiHistory> {
-  static const platform_channel = MethodChannel('myfit_bmi/server_connection');
+  static const platformChannel = MethodChannel('myfit_bmi/server_connection');
 
-  List<double> bmi = [];
+  late Future<List<charts.Series<ChartBmi, int>>> data;
 
-  Future<int> _getItemCount() async {
+  Future<List<charts.Series<ChartBmi, int>>> loadData() async {
     try {
-      bmi = await platform_channel.invokeMethod('getAllData');
+      List<Object?> remoteData = await platformChannel.invokeMethod('getAllData');
+      List<ChartBmi> chartData = [];
+
+      var index = 0;
+      for (var single in remoteData) {
+        single as double;
+        chartData.add(ChartBmi(index, single.toInt()));
+        index++;
+      }
+
+      return [
+        charts.Series<ChartBmi, int>(
+            id: 'bmi',
+            domainFn: (bmi, index) => bmi.pos,
+            measureFn: (bmi, index) => bmi.bmi,
+            data: chartData)
+      ];
     } on PlatformException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("PlatformException, look at the logs"),
+      ));
       Logger().d(e.stacktrace);
     }
 
-    setState(() {
-      bmi = bmi;
-    });
-
-    return bmi.length;
+    return [];
   }
 
-
-
-  List<charts.Series<ChartBmi, int>> _getData() {
-    List<ChartBmi> data = [];
-
-    var index = 0;
-    for (var single in bmi) {
-      data.add(ChartBmi(index, single.toInt()));
-      index++;
-    }
-
-    return [
-      charts.Series<ChartBmi, int>(
-          id: 'bmi',
-          domainFn: (bmi, index) => bmi.pos,
-          measureFn: (bmi, index) => bmi.bmi,
-          data: data)
-    ];
+  @override
+  void initState() {
+    super.initState();
+    data = loadData();
   }
-
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: FutureBuilder<int>(
-        initialData: 0,
-        future: _getItemCount(),
+      child: FutureBuilder<List<charts.Series<ChartBmi, int>>>(
+        future: data,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.hasData && snapshot.requireData.isNotEmpty) {
             return Column(
               children: [
                 Expanded(
-                  child: charts.LineChart(_getData()),
+                  child: charts.LineChart(snapshot.requireData),
                 ),
               ],
             );
           }
-
           return const Text('Loading ...');
         },
       ),

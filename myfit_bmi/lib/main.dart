@@ -17,7 +17,9 @@ class Entrypoint extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MainScreen(title: 'MyFit BMI Rechner'),
+      home: const Scaffold(
+        body: MainScreen(title: 'MyFit BMI Rechner')
+      )
     );
   }
 }
