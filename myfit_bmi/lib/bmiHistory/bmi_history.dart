@@ -34,7 +34,11 @@ class _BmiHistoryState extends State<BmiHistory> {
               ],
             );
           }
-          return const Text('Loading ...');
+          return Container(
+              width: double.infinity,
+              height: 500,
+              alignment: Alignment.center,
+              child: const CircularProgressIndicator());
         },
       ),
     );
