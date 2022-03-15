@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:myfit_bmi/services/network_service.dart';
 
 import 'bmi_gauge.dart';
 
@@ -32,22 +33,14 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
     return null;
   }
 
-  static const platform_channel = MethodChannel('myfit_bmi/server_connection');
+  int calculatedBmi = 0;
 
-  int remoteBmi = 0;
-
-  Future<void> calculateBmi(double height, double weight) async {
-    double bmiResult = 0;
-    try {
-      bmiResult = await platform_channel
-          .invokeMethod('calculateBmi', {'height': height, 'weight': weight});
-    } on PlatformException catch (e) {
-      bmiResult = 0;
-    }
-
-    setState(() {
-      remoteBmi = bmiResult.toInt();
-    });
+  void calculateBmi(double height, double weight) async {
+    NetworkService.instance.calculateBmi(height, weight).then((value) => {
+          setState(() {
+            calculatedBmi = value.toInt();
+          })
+        });
   }
 
   @override
@@ -61,7 +54,7 @@ class _BmiInputWidgetState extends State<BmiInputWidget> {
           children: [
             SizedBox(
               child: BmiGauge(
-                bmiValue: remoteBmi,
+                bmiValue: calculatedBmi,
               ),
               height: 200,
             ),

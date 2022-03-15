@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:myfit_bmi/bmiHistory/bmi_history.dart';
-import 'package:myfit_bmi/services/persistence_service.dart';
 import 'bmiHistory/bmi_input.dart';
 
 void main() {
@@ -59,7 +58,7 @@ class _MainScreenState extends State<MainScreen> {
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () async {
-              await PersistenceService.instance.deleteLast();
+          //    await PersistenceService.instance.deleteLast();
               _onItemTapped(0);
             },
           )

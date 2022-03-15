@@ -1,4 +1,4 @@
-class Bmi {
+class BmiValue {
   final double weight;
   final double size;
 
@@ -6,5 +6,5 @@ class Bmi {
     return (weight / (size * size)).round();
   }
 
-  Bmi(this.weight, this.size);
+  BmiValue(this.weight, this.size);
 }
