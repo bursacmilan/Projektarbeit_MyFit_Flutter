@@ -54,7 +54,7 @@ class MainActivity : FlutterActivity() {
                             for (element in data) {
                                 val object123 = element as java.util.AbstractMap<*, *>
                                 val weight = object123["weight"] as Double
-                                val height = object123["height"] as Double
+                                val height = (object123["height"] as Double) / 100
                                 list.add((weight / (height * height)))
                             }
 
