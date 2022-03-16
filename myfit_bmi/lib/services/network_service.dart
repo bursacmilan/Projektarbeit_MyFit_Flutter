@@ -28,9 +28,9 @@ class NetworkService {
             measureFn: (bmi, index) => bmi.y,
             data: chartValues)
       ];
-    } on PlatformException catch (e) {
-      Logger().d(e.stacktrace);
-      return [];
+    } on Exception catch (e) {
+      Logger().d(e);
+      return Future.error(e);
     }
   }
 

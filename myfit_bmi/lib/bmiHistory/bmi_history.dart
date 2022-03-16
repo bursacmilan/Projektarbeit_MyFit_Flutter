@@ -33,6 +33,10 @@ class _BmiHistoryState extends State<BmiHistory> {
                 ),
               ],
             );
+          } else if (snapshot.hasError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(snapshot.error.toString()),
+            ));
           }
           return Container(
               width: double.infinity,
