@@ -39,7 +39,17 @@ class NetworkService {
       return await platformChannel
           .invokeMethod('calculateBmi', {'height': height, 'weight': weight});
     } on PlatformException catch (e) {
+      Logger().d(e.stacktrace);
       return 0;
+    }
+  }
+
+  Future<void> deleteEntry(double timestamp) async {
+    try {
+      return await platformChannel
+          .invokeMethod('deleteEntry', {'timestamp': timestamp});
+    } on PlatformException catch (e) {
+      Logger().d(e.stacktrace);
     }
   }
 }

@@ -64,6 +64,21 @@ class MainActivity : FlutterActivity() {
                         }
                     }
                 }
+                "deleteEntry" -> {
+                    val parameter: Double? = call.argument("timestamp")
+
+                    parameter?.let {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            try {
+                                BmiApi().loginUser(parameter.toBigDecimal(), "deviceUuid");
+                                result.success(null);
+                            } catch (e: Exception) {
+                                result.error(e.message, e.toString(), null)
+                            }
+
+                        }
+                    } ?: result.error("internal_error", "unexpected input", null);
+                }
                 else -> {
                     result.notImplemented()
                 }
