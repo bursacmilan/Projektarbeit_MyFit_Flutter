@@ -7,6 +7,7 @@ class NetworkService {
   static NetworkService instance = NetworkService();
 
   static const platformChannel = MethodChannel('myfit_bmi/server_connection');
+  static int lastTimestamp = 0;
 
   Future<List<Series<ChartValue, int>>> loadHistory() async {
     try {
@@ -44,10 +45,10 @@ class NetworkService {
     }
   }
 
-  Future<void> deleteEntry(double timestamp) async {
+  Future<void> deleteEntry() async {
     try {
       return await platformChannel
-          .invokeMethod('deleteEntry', {'timestamp': timestamp});
+          .invokeMethod('deleteEntry');
     } on PlatformException catch (e) {
       Logger().d(e.stacktrace);
     }

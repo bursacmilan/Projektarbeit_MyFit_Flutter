@@ -13,6 +13,8 @@ class MainActivity : FlutterActivity() {
 
     private val CHANNEL = "myfit_bmi/server_connection"
 
+    private var lastTimestamp = Double.MAX_VALUE
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(
@@ -58,6 +60,9 @@ class MainActivity : FlutterActivity() {
                                 list.add((weight / (height * height)))
                             }
 
+                            val lastElement = data.last() as java.util.AbstractMap<*, *>
+                            lastTimestamp = lastElement["timeStamp"] as Double
+
                             result.success(list)
                         } catch (e: Exception) {
                             result.error(e.message, e.toString(), null)
@@ -65,19 +70,14 @@ class MainActivity : FlutterActivity() {
                     }
                 }
                 "deleteEntry" -> {
-                    val parameter: Double? = call.argument("timestamp")
-
-                    parameter?.let {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            try {
-                                BmiApi().loginUser(parameter.toBigDecimal(), "deviceUuid");
-                                result.success(null);
-                            } catch (e: Exception) {
-                                result.error(e.message, e.toString(), null)
-                            }
-
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            BmiApi().loginUser(lastTimestamp, "deviceUuid");
+                            result.success(null);
+                        } catch (e: Exception) {
+                            result.error(e.message, e.toString(), null)
                         }
-                    } ?: result.error("internal_error", "unexpected input", null);
+                    }
                 }
                 else -> {
                     result.notImplemented()

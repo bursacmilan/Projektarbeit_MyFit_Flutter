@@ -100,7 +100,7 @@ class BmiApi(basePath: kotlin.String = "https://myfit-api.managed-network.ch:104
     * @param deviceUUID  
     * @return void
     */
-    fun loginUser(timeStamp: java.math.BigDecimal, deviceUUID: kotlin.String) : Unit {
+    fun loginUser(timeStamp: Double, deviceUUID: kotlin.String) : Unit {
         val localVariableBody: kotlin.Any? = null
         val localVariableQuery: MultiValueMap = mapOf("timeStamp" to listOf("$timeStamp"), "deviceUUID" to listOf("$deviceUUID"))
         

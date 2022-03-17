@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myfit_bmi/bmiHistory/bmi_history.dart';
+import 'package:myfit_bmi/services/network_service.dart';
+
 import 'bmiHistory/bmi_input.dart';
 
 void main() {
@@ -12,14 +14,11 @@ class Entrypoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const Scaffold(
-        body: MainScreen(title: 'MyFit BMI Rechner')
-      )
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const Scaffold(body: MainScreen(title: 'MyFit BMI Rechner')));
   }
 }
 
@@ -58,7 +57,7 @@ class _MainScreenState extends State<MainScreen> {
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () async {
-          //    await PersistenceService.instance.deleteLast();
+              await NetworkService.instance.deleteEntry();
               _onItemTapped(0);
             },
           )
